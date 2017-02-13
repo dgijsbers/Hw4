@@ -15,21 +15,15 @@ from bs4 import BeautifulSoup
 # and save it in a file called nytimes_data.html.
 
 ## Write the Python code to do so here.
-html_text = requests.get("http://www.nytimes.com").text
-myfile = open("nytimes_data.html", "w")
-soup = BeautifulSoup([myfile], "lxml")
-myfile.write(html_text)
-#myfile.close()
-
-
+base_url = 'http://nytimes.com'
+r = requests.get(base_url)
+soup = BeautifulSoup(r.text, "lxml")
 
 #####################
 
 ## PART 2 (200 points)
 ## Write code to get the first 10 headlines from the New York Times, based on the data you saved in the 
 #file in Part 1, and save those strings in a list called nytimes_headlines. 
-nytimes_headlines = []
-soup.findall('h2', class_= "story-headline")
 
 ## Note that you will almost certainly need to do some investigation on the http://nytimes.com website to 
 #do this correctly, even after saving the file in Part 1.
@@ -59,8 +53,13 @@ soup.findall('h2', class_= "story-headline")
 # and make a BeautifulSoup object out of that string!
 ## NOTE that the provided link does not include saving the online data in a file as part of the process. But 
 #it still provides very useful hints/tricks about how to look for and identify the headlines on the NY Times page.
-
-
+nytimes_headlines = []
+for headlines in soup.find_all('h2', class_ = "story-heading", limit = 10):
+	if headlines.a:
+		print(headlines.a.text.replace("\n","").strip())
+		nytimes_headlines.append(headlines.text)
+	else:
+		print(headlines.contents[0].strip())
 
 
 #####################
@@ -86,26 +85,20 @@ soup.findall('h2', class_= "story-headline")
 
 response = requests.get("https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=All")
 htmldoc = response.text
-
 soup = BeautifulSoup(htmldoc,"html.parser")
 people = soup.find_all("div",{"class":"views-row"})
 umsi_titles = {}
-
 ## It may be helpful to translate the following from English to code:
 
 ## For each element in the list saved in the variable people,
-## Find the container that holds the name that belongs to that person (HINT: look for something unique, like a property element...)
+## Find the container that holds the name that belongs to that person (HINT: look for something unique, 
+	#like a property element...)
 ## Find the container that holds the title that belongs to that person (HINT: a class name)
 ## Grab the text of each of those elements and put them in the dictionary umsi_titles properly
 
-
-
-
-
-
-
-
-
+#for title in soup.find_all("div", class_ = "views-row"):
+for person in people:
+	umsi_titles[person.find("div", {"property":"dc:title"}).h2.text]=person.find("div", {"class":"field field-name-field-person-titles field-type-text field-label-hidden"}, {"class":"field-item even"}).text
 
 ######### UNIT TESTS; DO NOT CHANGE ANY CODE BELOW THIS LINE #########
 #### NOTE: hard-coding to pass any of these tests w/o following assignment instructions is not acceptable for points
